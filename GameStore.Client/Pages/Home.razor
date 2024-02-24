@@ -1,11 +1,25 @@
 ﻿@page "/"
 @using Models;
+@inject NavigationManager NavigationManager;
 
 <PageTitle>Game Catalog</PageTitle>
 
 <h1>Game Catalog</h1>
 
-<table class="table table-striped table-bordered table-hover">
+<div class="row mb-4">
+    <div class="col-sm-6">
+        <button type="button" class="btn btn-primary" @onclick="CreateGame">New Game</button>
+    </div>
+</div>
+
+@if (games is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <DeleteGame Game="@currentGame" OnClose="@onDeleteModalClose"></DeleteGame>
+    <table class="table table-striped table-bordered table-hover">
     <thead class="table-dark">
         <th>Id</th>
         <th>Name</th>
@@ -13,43 +27,59 @@
         <th>Price</th>
         <th>Release date</th>
         <th></th>
+        <th></th>
     </thead>
     <tbody>
         @foreach (var game in games)
-        {
-            <tr>
-                <td>@game.Id</td>
-                <td>@game.Name</td>
-                <td>@game.Genre</td>
-                <td>@game.Price</td>
-                <td>@game.ReleaseDate.ToString("MM/dd/yyyy")</td>
-            </tr>
-        }
-    </tbody>
-</table>
+            {
+                <tr>
+                    <td>@game.Id</td>
+                    <td>@game.Name</td>
+                    <td>@game.Genre</td>
+                    <td>@game.Price</td>
+                    <td>@game.ReleaseDate.ToString("MM/dd/yyyy")</td>
+                    <td><button type="button" class="btn btn-primary" @onclick="(()=>editGame(game.Id))">
+                            <i class="oi oi-pencil"></i>Edit
+                        </button></td>
+                    <td><button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                            @onclick="(()=>currentGame=game)">
+                            <i class="oi oi-x"></i>Delete
+                        </button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
 
 @code {
-    private Game[] games = new[]{
-new Game(){
-Id=1,
-Name = "Street Fighter II",
-Genre = "Fighting",
-Price = 19.99M,
-ReleaseDate = new DateTime(1991, 2, 1)
-},
-new Game(){
-Id=2,
-Name = "Final Fantasy XIV",
-Genre = "Roleplaying",
-Price = 59.99M,
-ReleaseDate = new DateTime(2010, 9, 30)
-},
-new Game(){
-Id=3,
-Name = "FIFA23",
-Genre = "Sports",
-Price = 69.99M,
-ReleaseDate = new DateTime(2022, 9, 2)
-}
-};
+    private Game[]? games;
+
+    private Game? currentGame;
+
+    protected override void OnInitialized()
+    {
+        games = GameClient.GetGames();
+    }
+
+    private void CreateGame()
+    {
+        NavigationManager.NavigateTo("/game");
+    }
+
+    private void editGame(int id)
+    {
+        NavigationManager.NavigateTo($"/game/{id}");
+    }
+
+    private void onDeleteModalClose(bool accepted)
+    {
+        if (accepted)
+        {
+            GameClient.DeleteGame(currentGame!.Id);
+            games = GameClient.GetGames();
+        }
+
+    }
 }
