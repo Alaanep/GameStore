@@ -1,1 +1,32 @@
-GET  http://localhost:5075/games
+@baseurl = http://localhost:5075
+
+GET  {{baseurl}}/games
+
+###
+GET  {{baseurl}}/games/3
+
+###
+ POST {{baseurl}}/games
+ Content-Type: application/json
+
+{
+  "name": "",
+  "genre": "Kids and family",
+  "price": 59.99,
+  "releaseDate": "2024-02-24T00:00:00"
+}
+
+###
+ PUT {{baseurl}}/games/4
+ Content-Type: application/json
+
+{
+  "name": "MineCreaft",
+  "genre": "Kids and family",
+  "price": 59.99,
+  "releaseDate": "2024-02-24T00:00:00"
+}
+
+###
+ DELETE  {{baseurl}}/games/4
+ 

@@ -26,9 +26,65 @@ List<Game> games = new(){
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
-//GET /Games
-app.MapGet("/games", () => games);
+var group = app.MapGroup("/games").WithParameterValidation();
 
+//GET /Games
+group.MapGet("/", () => games);
+
+//GET /GAMES/{id}
+
+group.MapGet("/{id}", (int id) =>
+{
+    Game? game = games.Find(g => g.Id == id);
+    if (game is null)
+    {
+        return Results.NotFound();
+    }
+    return Results.Ok(game);
+})
+.WithName("GetGame");
+
+//POST /Games
+group.MapPost("/", (Game game) =>
+{
+    game.Id = games.Max(game => game.Id) + 1;
+    games.Add(game);
+    return Results.CreatedAtRoute("GetGame", new { id = game.Id }, game);
+});
+
+
+//PUT /Games/{id}
+group.MapPut("/{id}", (int id, Game updatedGame) =>
+{
+    Game? existingGame = games.Find(g => g.Id == id);
+
+    if (existingGame is null)
+    {
+        updatedGame.Id = id;
+        games.Add(updatedGame);
+        return Results.CreatedAtRoute("GetGame", new { id = updatedGame.Id }, updatedGame);
+    }
+
+    existingGame.Name = updatedGame.Name;
+    existingGame.Genre = updatedGame.Genre;
+    existingGame.Price = updatedGame.Price;
+    existingGame.ReleaseDate = updatedGame.ReleaseDate;
+    return Results.NoContent();
+});
+
+//DELETE /Games/{id}
+group.MapDelete("/{id}", (int id) =>
+{
+    Game? game = games.Find(g => g.Id == id);
+
+    if (game is null)
+    {
+        return Results.NotFound();
+        //return Results.NoContent();
+    }
+    games.Remove(game);
+    return Results.NoContent();
+});
 
 
 
