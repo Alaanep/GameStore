@@ -1,0 +1,1 @@
+/Users/alarlaanep/Projects/GameStore/out/web.config
