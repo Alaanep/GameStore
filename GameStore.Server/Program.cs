@@ -1,4 +1,5 @@
 using GameStore.Server.Models;
+using GameStore.Server.Data;
 List<Game> games = new(){
             new Game(){
             Id=1,
@@ -24,11 +25,15 @@ List<Game> games = new(){
         };
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddCors(options => options.AddDefaultPolicy(builder => {
+builder.Services.AddCors(options => options.AddDefaultPolicy(builder =>
+{
     builder.WithOrigins("http://localhost:5271")
         .AllowAnyHeader()
         .AllowAnyMethod();
 }));
+
+var connString = builder.Configuration.GetConnectionString("GameStoreContext");
+builder.Services.AddSqlServer<GameStoreContext>(connString);
 var app = builder.Build();
 
 app.UseCors();
