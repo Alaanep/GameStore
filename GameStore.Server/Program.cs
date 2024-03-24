@@ -1,6 +1,8 @@
 using GameStore.Server.Models;
 using GameStore.Server.Data;
-List<Game> games = new(){
+using Microsoft.EntityFrameworkCore;
+using GameStore.Server.Data.Configurations;
+/*List<Game> games = new(){
             new Game(){
             Id=1,
             Name = "Street Fighter II",
@@ -22,7 +24,7 @@ List<Game> games = new(){
             Price = 69.99M,
             ReleaseDate = new DateTime(2022, 9, 2)
             }
-        };
+        }; */
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options => options.AddDefaultPolicy(builder =>
@@ -41,13 +43,16 @@ app.UseCors();
 var group = app.MapGroup("/games").WithParameterValidation();
 
 //GET /Games
-group.MapGet("/", () => games);
+group.MapGet("/", async (GameStoreContext context) =>
+
+await context.Games.AsNoTracking().ToListAsync()
+);
 
 //GET /GAMES/{id}
 
-group.MapGet("/{id}", (int id) =>
+group.MapGet("/{id}", async (int id, GameStoreContext context) =>
 {
-    Game? game = games.Find(g => g.Id == id);
+    Game? game = await context.Games.FindAsync(id); //games.Find(g => g.Id == id);
     if (game is null)
     {
         return Results.NotFound();
@@ -57,10 +62,13 @@ group.MapGet("/{id}", (int id) =>
 .WithName("GetGame");
 
 //POST /Games
-group.MapPost("/", (Game game) =>
+group.MapPost("/", async (Game game, GameStoreContext context) =>
 {
-    game.Id = games.Max(game => game.Id) + 1;
-    games.Add(game);
+    //game.Id = games.Max(game => game.Id) + 1;
+    //games.Add(game);
+
+    context.Games.Add(game);
+    await context.SaveChangesAsync();
     return Results.CreatedAtRoute("GetGame", new { id = game.Id }, game);
 });
 
