@@ -13,7 +13,7 @@ namespace GameStore.Server.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Game> builder)
         {
-            throw new NotImplementedException();
+            builder.Property(game => game.Price).HasPrecision(18, 2);
         }
     }
 }
