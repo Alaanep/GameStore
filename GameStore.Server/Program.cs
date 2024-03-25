@@ -43,10 +43,17 @@ app.UseCors();
 var group = app.MapGroup("/games").WithParameterValidation();
 
 //GET /Games
-group.MapGet("/", async (GameStoreContext context) =>
+group.MapGet("/", async (string filter, GameStoreContext context) =>
+{
 
-await context.Games.AsNoTracking().ToListAsync()
-);
+    var games = context.Games.AsNoTracking();
+    if (filter is not null)
+    {
+        games = games.Where(game => game.Name.Contains(filter) || game.Genre.Contains(filter));
+    }
+
+    return await games.ToListAsync();
+});
 
 //GET /GAMES/{id}
 

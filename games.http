@@ -10,17 +10,6 @@ GET  {{baseurl}}/games/3
  Content-Type: application/json
 
 {
-  "name": "",
-  "genre": "Kids and family",
-  "price": 59.99,
-  "releaseDate": "2024-02-24T00:00:00"
-}
-
-###
- PUT {{baseurl}}/games/4
- Content-Type: application/json
-
-{
   "name": "MineCreaft",
   "genre": "Kids and family",
   "price": 59.99,
@@ -28,5 +17,16 @@ GET  {{baseurl}}/games/3
 }
 
 ###
- DELETE  {{baseurl}}/games/4
+ PUT {{baseurl}}/games/1
+ Content-Type: application/json
+
+{
+  "name": "MineCreaft1",
+  "genre": "Kids and family",
+  "price": 59.99,
+  "releaseDate": "2024-02-24T00:00:00"
+}
+
+###
+ DELETE  {{baseurl}}/games/1
  
