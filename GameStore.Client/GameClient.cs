@@ -12,7 +12,7 @@ namespace GameStore.Client
         {
             this.httpClient = httpClient;
         }
-        public async Task<Game[]?> GetGamesAsync() => await httpClient.GetFromJsonAsync<Game[]>("games");
+        public async Task<Game[]?> GetGamesAsync(string filter) => await httpClient.GetFromJsonAsync<Game[]>($"games?filter={filter}");
         public async Task AddGameAsync(Game game) => await httpClient.PostAsJsonAsync("games", game);
         public async Task<Game> GetGameAsync(int id) => await httpClient.GetFromJsonAsync<Game>($"games/{id}") ?? throw new Exception("Could not find the game");
         public async Task UpDateGameAsync(Game updatedGame) => await httpClient.PutAsJsonAsync($"games/{updatedGame.Id}", updatedGame);
