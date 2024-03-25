@@ -74,36 +74,51 @@ group.MapPost("/", async (Game game, GameStoreContext context) =>
 
 
 //PUT /Games/{id}
-group.MapPut("/{id}", (int id, Game updatedGame) =>
+group.MapPut("/{id}", async (int id, Game updatedGame, GameStoreContext context) =>
 {
-    Game? existingGame = games.Find(g => g.Id == id);
 
-    if (existingGame is null)
-    {
-        updatedGame.Id = id;
-        games.Add(updatedGame);
-        return Results.CreatedAtRoute("GetGame", new { id = updatedGame.Id }, updatedGame);
-    }
+    var rowsAffected = await context.Games.Where(game => game.Id == id)
+        .ExecuteUpdateAsync(updates =>
 
-    existingGame.Name = updatedGame.Name;
-    existingGame.Genre = updatedGame.Genre;
-    existingGame.Price = updatedGame.Price;
-    existingGame.ReleaseDate = updatedGame.ReleaseDate;
-    return Results.NoContent();
+            updates.SetProperty(game => game.Name, updatedGame.Name)
+            .SetProperty(game => game.Genre, updatedGame.Genre)
+            .SetProperty(game => game.Price, updatedGame.Price)
+            .SetProperty(game => game.ReleaseDate, updatedGame.ReleaseDate));
+
+    return rowsAffected == 0 ? Results.NotFound() : Results.NoContent();
+    // Game? existingGame = await context.Games.FindAsync(id); //games.Find(g => g.Id == id);//games.Find(g => g.Id == id);
+
+    // if (existingGame is null)
+    // {
+    //     // updatedGame.Id = id;
+    //     // context.Games.Add(updatedGame);
+    //     // await context.SaveChangesAsync();
+    //     // return Results.CreatedAtRoute("GetGame", new { id = updatedGame.Id }, updatedGame);
+    //     return Results.NotFound();
+    // }
+
+    // existingGame.Name = updatedGame.Name;
+    // existingGame.Genre = updatedGame.Genre;
+    // existingGame.Price = updatedGame.Price;
+    // existingGame.ReleaseDate = updatedGame.ReleaseDate;
+    // await context.SaveChangesAsync();
+    // return Results.NoContent();
 });
 
 //DELETE /Games/{id}
-group.MapDelete("/{id}", (int id) =>
+group.MapDelete("/{id}", async (int id, GameStoreContext context) =>
 {
-    Game? game = games.Find(g => g.Id == id);
+    var rowsAffected = await context.Games.Where(game => game.Id == id)
+        .ExecuteDeleteAsync();
+    // Game? game = await context.Games.FindAsync(id); //games.Find(g => g.Id == id);//games.Find(g => g.Id == id);
 
-    if (game is null)
-    {
-        return Results.NotFound();
-        //return Results.NoContent();
-    }
-    games.Remove(game);
-    return Results.NoContent();
+    // if (game is null)
+    // {
+    //     return Results.NotFound();
+    //     //return Results.NoContent();
+    // }
+    // games.Remove(game);
+    return rowsAffected == 0 ? Results.NotFound() : Results.NoContent();
 });
 
 
